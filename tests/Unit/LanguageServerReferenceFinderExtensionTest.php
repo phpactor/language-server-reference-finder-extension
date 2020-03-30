@@ -17,7 +17,7 @@ use Phpactor\LanguageServer\Test\ServerTester;
 
 class LanguageServerReferenceFinderExtensionTest extends TestCase
 {
-    public function testComplete()
+    public function testDefinition()
     {
         $tester = $this->createTester();
         $tester->initialize();
@@ -30,7 +30,23 @@ class LanguageServerReferenceFinderExtensionTest extends TestCase
         ]);
         $response = $responses[0];
         $this->assertInstanceOf(ResponseError::class, $response->responseError);
-        $this->assertContains('Unable to locate definition', $response->responseError->message);
+        $this->assertContains('No definition locator', $response->responseError->message);
+    }
+
+    public function testTypeDefinition()
+    {
+        $tester = $this->createTester();
+        $tester->initialize();
+        $tester->openDocument(new TextDocumentItem(__FILE__, 'php', 1, file_get_contents(__FILE__)));
+
+        $responses = $tester->dispatch('textDocument/typeDefinition', [
+            'textDocument' => new TextDocumentIdentifier(__FILE__),
+            'position' => [
+            ],
+        ]);
+        $response = $responses[0];
+        $this->assertInstanceOf(ResponseError::class, $response->responseError);
+        $this->assertContains('No type locators', $response->responseError->message);
     }
 
     private function createTester(): ServerTester
