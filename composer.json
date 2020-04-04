@@ -13,7 +13,7 @@
 
     "require": {
         "phpactor/container": "^1.0",
-        "phpactor/language-server-extension": "~0.2",
+        "phpactor/language-server": "~0.3",
         "phpactor/reference-finder-extension": "~0.1"
     },
     "require-dev": {
