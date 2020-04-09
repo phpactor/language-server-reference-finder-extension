@@ -13,7 +13,7 @@
 
     "require": {
         "phpactor/container": "^1.0",
-        "phpactor/language-server": "~0.3",
+        "phpactor/language-server-extension": "~0.3",
         "phpactor/reference-finder-extension": "~0.1"
     },
     "require-dev": {
@@ -34,7 +34,14 @@
     "extra": {
         "phpactor.extension_class": "Phpactor\\Extension\\LanguageServerReferenceFinder\\LanguageServerReferenceFinderExtension",
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "0.2.x-dev"
         }
+    },
+    "scripts": {
+        "integrate": [
+            "./vendor/bin/phpunit",
+            "./vendor/bin/phpstan analyze --level=7",
+            "./vendor/bin/php-cs-fixer fix"
+        ]
     }
 }

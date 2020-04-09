@@ -2,6 +2,7 @@
 
 namespace Phpactor\Extension\LanguageServerReferenceFinder\Handler;
 
+use Amp\Promise;
 use Generator;
 use LanguageServerProtocol\Location;
 use LanguageServerProtocol\Position;
@@ -45,39 +46,41 @@ class GotoDefinitionHandler implements Handler, CanRegisterCapabilities
     public function definition(
         TextDocumentIdentifier $textDocument,
         Position $position
-    ): Generator {
-        $textDocument = $this->workspace->get($textDocument->uri);
+    ): Promise {
+        return \Amp\call(function () use ($textDocument, $position) {
+            $textDocument = $this->workspace->get($textDocument->uri);
 
-        $offset = $position->toOffset($textDocument->text);
+            $offset = $position->toOffset($textDocument->text);
 
-        $location = $this->definitionLocator->locateDefinition(
-            TextDocumentBuilder::create($textDocument->text)->uri($textDocument->uri)->language('php')->build(),
-            ByteOffset::fromInt($offset)
-        );
+            $location = $this->definitionLocator->locateDefinition(
+                TextDocumentBuilder::create($textDocument->text)->uri($textDocument->uri)->language('php')->build(),
+                ByteOffset::fromInt($offset)
+            );
 
 
-        // this _should_ exist for sure, but would be better to refactor the
-        // goto definition result to return the source code.
-        $sourceCode = file_get_contents($location->uri());
+            // this _should_ exist for sure, but would be better to refactor the
+            // goto definition result to return the source code.
+            $sourceCode = file_get_contents($location->uri());
 
-        if (false === $sourceCode) {
-            throw new RuntimeException(sprintf(
-                'Could not read file "%s"',
-                $location->uri()
+            if (false === $sourceCode) {
+                throw new RuntimeException(sprintf(
+                    'Could not read file "%s"',
+                    $location->uri()
+                ));
+            }
+
+            $startPosition = OffsetHelper::offsetToPosition(
+                $sourceCode,
+                $location->offset()->toInt()
+            );
+
+            $location = new Location($location->uri(), new Range(
+                $startPosition,
+                $startPosition
             ));
-        }
 
-        $startPosition = OffsetHelper::offsetToPosition(
-            $sourceCode,
-            $location->offset()->toInt()
-        );
-
-        $location = new Location($location->uri(), new Range(
-            $startPosition,
-            $startPosition
-        ));
-
-        yield $location;
+            return $location;
+        });
     }
 
     public function registerCapabiltiies(ServerCapabilities $capabilities)

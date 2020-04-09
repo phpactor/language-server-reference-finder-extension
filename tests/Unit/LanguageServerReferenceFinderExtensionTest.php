@@ -23,12 +23,11 @@ class LanguageServerReferenceFinderExtensionTest extends TestCase
         $tester->initialize();
         $tester->openDocument(new TextDocumentItem(__FILE__, 'php', 1, file_get_contents(__FILE__)));
 
-        $responses = $tester->dispatch('textDocument/definition', [
+        $response = $tester->dispatchAndWait(1, 'textDocument/definition', [
             'textDocument' => new TextDocumentIdentifier(__FILE__),
             'position' => [
             ],
         ]);
-        $response = $responses[0];
         $this->assertInstanceOf(ResponseError::class, $response->responseError);
         $this->assertContains('No definition locator', $response->responseError->message);
     }
@@ -39,12 +38,11 @@ class LanguageServerReferenceFinderExtensionTest extends TestCase
         $tester->initialize();
         $tester->openDocument(new TextDocumentItem(__FILE__, 'php', 1, file_get_contents(__FILE__)));
 
-        $responses = $tester->dispatch('textDocument/typeDefinition', [
+        $response = $tester->dispatchAndWait(1, 'textDocument/typeDefinition', [
             'textDocument' => new TextDocumentIdentifier(__FILE__),
             'position' => [
             ],
         ]);
-        $response = $responses[0];
         $this->assertInstanceOf(ResponseError::class, $response->responseError);
         $this->assertContains('No type locators', $response->responseError->message);
     }

@@ -78,12 +78,11 @@ class GotoDefinitionHandlerTest extends TestCase
             $this->workspace,
             $this->locator->reveal()
         ));
-        $responses = $tester->dispatch('textDocument/definition', [
+        $response = $tester->dispatch('textDocument/definition', [
             'textDocument' => $this->identifier,
             'position' => $this->position,
         ]);
-        $this->assertInstanceOf(ResponseMessage::class, $responses[0]);
-        $location = $responses[0]->result;
+        $location = $response->result;
         $this->assertInstanceOf(Location::class, $location);
         $this->assertEquals('file://' . __FILE__, $location->uri);
         $this->assertEquals(2, $location->range->start->character);
