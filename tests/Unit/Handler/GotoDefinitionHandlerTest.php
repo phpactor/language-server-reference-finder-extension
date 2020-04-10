@@ -78,7 +78,7 @@ class GotoDefinitionHandlerTest extends TestCase
             $this->workspace,
             $this->locator->reveal()
         ));
-        $response = $tester->dispatch('textDocument/definition', [
+        $response = $tester->dispatchAndWait('textDocument/definition', [
             'textDocument' => $this->identifier,
             'position' => $this->position,
         ]);
